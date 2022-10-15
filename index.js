@@ -66,7 +66,6 @@ function gameOver() {
         playState= false
         pattern= []
         userInput= []
-        $(".btn").off("click")
 }
 
 function addClickEvent() {
@@ -94,7 +93,10 @@ function checkUserInput(level) {
             if ((userInput.length == pattern.length) && (userInput.toString() == pattern.toString())) {
                 $(".btn").off("click")
                 resolve(true)
-            } else resolve(false)
+            } else {
+                $(".btn").off("click")
+                resolve(false)
+              }
         }, 2 * (level * 1000) + 3000)
         
         // if (userInput.length !== pattern.length) {
