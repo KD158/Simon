@@ -66,6 +66,7 @@ function gameOver() {
         playState= false
         pattern= []
         userInput= []
+        $(".btn").off("click")
 }
 
 function addClickEvent() {
