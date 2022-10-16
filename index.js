@@ -57,6 +57,7 @@ function addPattern() {
 }
 
 function gameOver() {
+        $("hr").fadeOut()
         var audio = new Audio("tones/buzzer-fail.mp3")
         audio.play()
         $("body").addClass("gameOver")
@@ -87,7 +88,8 @@ function addClickEvent() {
 }
 
 function checkUserInput(level) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+        timer(level)
         addClickEvent()
         setTimeout(() => {
             if ((userInput.length == pattern.length) && (userInput.toString() == pattern.toString())) {
@@ -96,17 +98,8 @@ function checkUserInput(level) {
             } else {
                 $(".btn").off("click")
                 resolve(false)
-              }
+            }
         }, 2 * (level * 1000) + 3000)
-        
-        // if (userInput.length !== pattern.length) {
-
-        // } else {
-        //     if (userInput.toString() == pattern.toString()) {
-        //         $(".btn").off("click")
-        //         resolve(true)
-        //     } else resolve(false)
-        // }
     })
 }
 function lightShow() {
@@ -119,8 +112,8 @@ function lightShow() {
         setTimeout(function(){
             lightUp(green)
             lightUp(red)
-            lightUp(yellow)
             lightUp(blue)
+            lightUp(yellow)
         }, 2600)
         setTimeout(function(){resolve()}, 5000)
     })
@@ -130,8 +123,30 @@ function correct() {
     return new Promise((resolve) => {
         $("body").addClass("correct")
         setTimeout(function(){$("body").removeClass("correct")}, 300)
-        setTimeout(function(){resolve()}, 500)
+        setTimeout(function(){resolve()}, 1000)
     })
+}
+
+function timer(level) {
+    var totalTime= 2 * (level * 1000) + 3000
+    var timeLeft= totalTime
+    if (timerIntervalId) {
+        timerStop()
+    }
+    timerIntervalId = setInterval(() => {
+        if ($("hr").css("width") != '16px') {
+            timeLeft -= 10
+            percentTimeLeft = timeLeft / totalTime * 100
+            $("hr").css("width", percentTimeLeft + "%")       
+        }
+    }, 10)
+    
+}
+
+function timerStop() {
+    clearInterval(timerIntervalId)
+    timerIntervalId= null
+    $("hr").css("width", "100%")
 }
 
 async function gameStart() {
@@ -146,8 +161,12 @@ async function gameStart() {
         const userPlayed = await checkUserInput(level)
         if (userPlayed) {
             const answerCorrect = await correct()
+            timer(level)
             level++
-        } else gameOver()
+        } else {
+            timerStop()
+            gameOver()
+        }
     }
 }
 
@@ -158,8 +177,10 @@ var blue= $(".btn-primary")
 var pattern= []
 var userInput= []
 var playState= false
+let timerIntervalId
 
 $(".playButton").click(() => {
+    $("hr").slideToggle()
     $(".playButton").fadeOut(200)
     gameStart()
     })
